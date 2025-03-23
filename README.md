@@ -1,2 +1,2 @@
 # Eleni and Giorgos Wedding Website
-Eleni-Giorgos-Wedding
+A static wedding website
