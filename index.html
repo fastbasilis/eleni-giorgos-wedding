@@ -37,7 +37,6 @@
             font-size: 2.5rem;
         }
         
-        /* Ampersand now uses the same styling as the rest of the heading */
         .ampersand {
             font-family: 'Cormorant Garamond', serif;
         }
@@ -84,7 +83,6 @@
             font-family: 'Lora', serif;
         }
         
-        /* Date now uses the same font as the subheading */
         .date-display {
             margin-top: 30px;
             font-style: italic;
@@ -107,22 +105,17 @@
         <div class="date-display">11 Ιουλίου 2025</div>
     </div>
     
-    <div id="content" style="display: none;">
-        <!-- Your wedding site content will go here -->
-    </div>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const correctPassword = "wedding123"; // Change this to your desired password
             const passwordInput = document.getElementById('password-input');
             const submitButton = document.getElementById('submit-button');
             const errorMessage = document.getElementById('error-message');
             const passwordContainer = document.getElementById('password-container');
-            const contentContainer = document.getElementById('content');
             
             // Check if already authenticated
             if (localStorage.getItem('weddingAuthenticated') === 'true') {
-                showContent();
+                window.location.href = "main.html";
+                return;
             }
             
             // Handle Enter key press
@@ -136,23 +129,33 @@
             submitButton.addEventListener('click', checkPassword);
             
             function checkPassword() {
-                if (passwordInput.value === correctPassword) {
-                    // Store authentication in localStorage
+                const input = passwordInput.value;
+                
+                // Hash function - SHA-256 implementation (simplified for this example)
+                function hashString(str) {
+                    let hash = 0;
+                    if (str.length === 0) return hash;
+                    
+                    for (let i = 0; i < str.length; i++) {
+                        const char = str.charCodeAt(i);
+                        hash = ((hash << 5) - hash) + char;
+                        hash = hash & hash; // Convert to 32bit integer
+                    }
+                    
+                    return hash;
+                }
+                
+                const correctHash = 532026635;
+                
+                if (hashString(input) === correctHash) {
+                    // Password is correct
                     localStorage.setItem('weddingAuthenticated', 'true');
-                    showContent();
+                    window.location.href = "main.html";
                 } else {
-                    // Show error message
+                    // Password is incorrect
                     errorMessage.style.display = 'block';
                     passwordInput.value = '';
                 }
-            }
-            
-            function showContent() {
-                // Hide password container
-                passwordContainer.style.display = 'none';
-                
-                // Show content or redirect to main page
-                window.location.href = "main.html"; // Replace with your actual page
             }
         });
     </script>
