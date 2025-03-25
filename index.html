@@ -106,11 +106,24 @@
     </div>
     
     <script>
+        // Store for the password once loaded
+        let correctPassword = '';
+        
+        // Fetch the password from the external file
+        fetch('tt.txt')
+            .then(response => response.text())
+            .then(password => {
+                // Store the password after removing any whitespace
+                correctPassword = password.trim();
+            })
+            .catch(error => {
+                console.error('Error loading password file:', error);
+            });
+            
         document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.getElementById('password-input');
             const submitButton = document.getElementById('submit-button');
             const errorMessage = document.getElementById('error-message');
-            const passwordContainer = document.getElementById('password-container');
             
             // Check if already authenticated
             if (localStorage.getItem('weddingAuthenticated') === 'true') {
@@ -131,23 +144,7 @@
             function checkPassword() {
                 const input = passwordInput.value;
                 
-                // Hash function - SHA-256 implementation (simplified for this example)
-                function hashString(str) {
-                    let hash = 0;
-                    if (str.length === 0) return hash;
-                    
-                    for (let i = 0; i < str.length; i++) {
-                        const char = str.charCodeAt(i);
-                        hash = ((hash << 5) - hash) + char;
-                        hash = hash & hash; // Convert to 32bit integer
-                    }
-                    
-                    return hash;
-                }
-                
-                const correctHash = 532026635;
-                
-                if (hashString(input) === correctHash) {
+                if (input === correctPassword) {
                     // Password is correct
                     localStorage.setItem('weddingAuthenticated', 'true');
                     window.location.href = "main.html";
