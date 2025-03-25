@@ -106,55 +106,45 @@
     </div>
     
     <script>
-        // Store for the password once loaded
-        let correctPassword = '';
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('password-input');
+        const submitButton = document.getElementById('submit-button');
+        const errorMessage = document.getElementById('error-message');
         
-        // Fetch the password from the external file
-        fetch('tt.txt')
-            .then(response => response.text())
-            .then(password => {
-                // Store the password after removing any whitespace
-                correctPassword = password.trim();
-            })
-            .catch(error => {
-                console.error('Error loading password file:', error);
-            });
-            
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordInput = document.getElementById('password-input');
-            const submitButton = document.getElementById('submit-button');
-            const errorMessage = document.getElementById('error-message');
-            
-            // Check if already authenticated
-            if (localStorage.getItem('weddingAuthenticated') === 'true') {
-                window.location.href = "main.html";
-                return;
-            }
-            
-            // Handle Enter key press
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    checkPassword();
-                }
-            });
-            
-            // Handle button click
-            submitButton.addEventListener('click', checkPassword);
-            
-            function checkPassword() {
-                const input = passwordInput.value;
-                
-                if (input === correctPassword) {
-                    // Password is correct
-                    localStorage.setItem('weddingAuthenticated', 'true');
-                    window.location.href = "main.html";
-                } else {
-                    // Password is incorrect
-                    errorMessage.style.display = 'block';
-                    passwordInput.value = '';
-                }
+        // Check if already authenticated
+        if (localStorage.getItem('weddingAuthenticated') === 'true') {
+            window.location.href = "main.html";
+            return;
+        }
+        
+        // Handle Enter key press
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
             }
         });
-    </script>
+        
+        // Handle button click
+        submitButton.addEventListener('click', checkPassword);
+        
+        function checkPassword() {
+            const input = passwordInput.value;
+            
+            
+            const encodedPwd = [116, 115, 105, 116, 115, 105, 64];
+            const decodedPwd = encodedPwd.map(c => String.fromCharCode(c)).join('');
+            
+            if (input === decodedPwd) {
+                // Password is correct
+                localStorage.setItem('weddingAuthenticated', 'true');
+                window.location.href = "main.html";
+            } else {
+                // Password is incorrect
+                errorMessage.style.display = 'block';
+                passwordInput.value = '';
+            }
+        }
+    });
+</script>
 </body>
 </html>
