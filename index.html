@@ -131,7 +131,7 @@
             const input = passwordInput.value;
             
             
-            const encodedPwd = [116, 115, 105, 116, 115, 105, 64];
+            const encodedPwd = [119, 101, 100, 100, 105, 110, 103, 64, 64];
             const decodedPwd = encodedPwd.map(c => String.fromCharCode(c)).join('');
             
             if (input === decodedPwd) {
