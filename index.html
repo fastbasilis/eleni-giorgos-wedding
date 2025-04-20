@@ -111,7 +111,10 @@
         const submitButton = document.getElementById('submit-button');
         const errorMessage = document.getElementById('error-message');
         
-        // Check if already authenticated
+        // Clear existing authentication
+        localStorage.removeItem('weddingAuthenticated');
+        
+        // Check if already authenticated (this will be false now)
         if (localStorage.getItem('weddingAuthenticated') === 'true') {
             window.location.href = "main.html";
             return;
@@ -129,7 +132,6 @@
         
         function checkPassword() {
             const input = passwordInput.value;
-            
             
             const encodedPwd = [119, 101, 100, 100, 105, 110, 103, 64, 64];
             const decodedPwd = encodedPwd.map(c => String.fromCharCode(c)).join('');
