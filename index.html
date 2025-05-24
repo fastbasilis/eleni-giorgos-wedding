@@ -111,8 +111,6 @@
         const submitButton = document.getElementById('submit-button');
         const errorMessage = document.getElementById('error-message');
         
-        // Clear existing authentication
-        localStorage.removeItem('weddingAuthenticated');
         
         // Check if already authenticated (this will be false now)
         if (localStorage.getItem('weddingAuthenticated') === 'true') {
