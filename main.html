@@ -229,7 +229,8 @@ flexibility(document.documentElement);
 				<div class="elementor-element elementor-element-e7c1e02 elementor-mobile-align-center elementor-widget elementor-widget-button" data-id="e7c1e02" data-element_type="widget" data-widget_type="button.default">
 				<div class="elementor-widget-container">
 									<div class="elementor-button-wrapper">
-					<a class="elementor-button elementor-button-link elementor-size-sm" href="https://calendar.google.com/calendar/r/eventedit?text=%CE%93%CE%AC%CE%BC%CE%BF%CF%82+%CE%95%CE%BB%CE%AD%CE%BD%CE%B7+-+%CE%93%CE%B9%CF%8E%CF%81%CE%B3%CE%BF%CF%82&dates=20250711T160000Z/20250711T205900Z&location=https://maps.app.goo.gl/6AyH6pyKgxjdStX89" target="_blank">
+					<a class="elementor-button elementor-button-link elementor-size-sm" onclick="addToCalendar(); return false;" 
+   href="#">
 						<span class="elementor-button-content-wrapper">
 						<span class="elementor-button-icon">
 				<svg aria-hidden="true" class="e-font-icon-svg e-far-calendar-alt" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M148 288h-40c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12zm108-12v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 96v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96-260v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48zm-48 346V160H48v298c0 3.3 2.7 6 6 6h340c3.3 0 6-2.7 6-6z"></path></svg>			</span>
@@ -844,6 +845,163 @@ document.getElementById("copyPhoneButton").addEventListener("click", copyPhoneNu
 				</footer><!-- #colophon -->
 	</div>
 <!-- #page -->
+<script> // Function to detect device type and open appropriate calendar
+function addToCalendar() {
+    // Event details
+    const eventTitle = "Γάμος Ελένη - Γιώργος";
+    const startDate = "20250711T160000Z";
+    const endDate = "20250711T205900Z";
+    const location = "https://maps.app.goo.gl/6AyH6pyKgxjdStX89";
+    
+    // Device detection
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    const isAndroid = /android/i.test(userAgent);
+    const isMobile = isIOS || isAndroid;
+    
+    if (isIOS) {
+        // For iOS devices - use Apple Calendar format
+        // Convert from UTC format to Apple Calendar format
+        const startDateApple = startDate.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/, '$1-$2-$3T$4:$5:$6Z');
+        const endDateApple = endDate.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/, '$1-$2-$3T$4:$5:$6Z');
+        
+        const appleCalendarUrl = `data:text/calendar;charset=utf8,BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+URL:${location}
+DTSTART:${startDate}
+DTEND:${endDate}
+SUMMARY:${eventTitle}
+LOCATION:${location}
+END:VEVENT
+END:VCALENDAR`;
+        
+        // Try to open in Calendar app, fallback to Google Calendar
+        const calendarAppUrl = `calshow:${Math.floor(new Date(startDateApple).getTime() / 1000)}`;
+        
+        // Create a temporary link to download the .ics file
+        const link = document.createElement('a');
+        link.href = appleCalendarUrl;
+        link.download = 'event.ics';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+    } else if (isAndroid) {
+        // For Android devices - use Google Calendar
+        const googleCalendarUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventTitle)}&dates=${startDate}/${endDate}&location=${encodeURIComponent(location)}`;
+        
+        // Try to open in Google Calendar app, fallback to web
+        const intent = `intent://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventTitle)}&dates=${startDate}/${endDate}&location=${encodeURIComponent(location)}#Intent;scheme=https;package=com.google.android.calendar;end`;
+        
+        window.location.href = intent;
+        
+        // Fallback to web version after a short delay
+        setTimeout(() => {
+            window.open(googleCalendarUrl, '_blank');
+        }, 1000);
+        
+    } else {
+        // For desktop/other devices - use Google Calendar web
+        const googleCalendarUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventTitle)}&dates=${startDate}/${endDate}&location=${encodeURIComponent(location)}`;
+        window.open(googleCalendarUrl, '_blank');
+    }
+}
+
+// Alternative approach using a more comprehensive device detection
+function addToCalendarAdvanced() {
+    const eventDetails = {
+        title: "Γάμος Ελένη - Γιώργος",
+        start: "20250711T160000Z",
+        end: "20250711T205900Z",
+        location: "https://maps.app.goo.gl/6AyH6pyKgxjdStX89"
+    };
+    
+    // More comprehensive device detection
+    const platform = navigator.platform || '';
+    const userAgent = navigator.userAgent || '';
+    
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) || 
+                  /Mac/.test(platform) && 'ontouchend' in document;
+    const isAndroid = /Android/.test(userAgent);
+    const isWindows = /Win/.test(platform);
+    const isMac = /Mac/.test(platform) && !isIOS;
+    
+    console.log('Detected platform:', { isIOS, isAndroid, isWindows, isMac });
+    
+    if (isIOS) {
+        // iOS Calendar
+        openAppleCalendar(eventDetails);
+    } else if (isAndroid) {
+        // Android Google Calendar
+        openGoogleCalendarAndroid(eventDetails);
+    } else {
+        // Desktop - Google Calendar Web
+        openGoogleCalendarWeb(eventDetails);
+    }
+}
+
+function openAppleCalendar(event) {
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Wedding Event//EN
+BEGIN:VEVENT
+UID:${Date.now()}@wedding-event.com
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART:${event.start}
+DTEND:${event.end}
+SUMMARY:${event.title}
+LOCATION:${event.location}
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'wedding-event.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
+}
+
+function openGoogleCalendarAndroid(event) {
+    const googleUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}`;
+    
+    // Try to open in Google Calendar app
+    const intentUrl = `intent://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}#Intent;scheme=https;package=com.google.android.calendar;end`;
+    
+    window.location.href = intentUrl;
+    
+    // Fallback to web version
+    setTimeout(() => {
+        if (document.hidden || document.webkitHidden) return; // App opened successfully
+        window.open(googleUrl, '_blank');
+    }, 1500);
+}
+
+function openGoogleCalendarWeb(event) {
+    const googleUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}`;
+    window.open(googleUrl, '_blank');
+}
+
+// Usage example - replace your button's onclick or href
+// Method 1: Use onclick
+// <a class="elementor-button elementor-button-link elementor-size-sm" onclick="addToCalendar(); return false;" href="#">
+
+// Method 2: Use event listener (recommended)
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarButton = document.querySelector('.elementor-button');
+    if (calendarButton) {
+        calendarButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            addToCalendarAdvanced();
+        });
+    }
+});</script>
 <script type="speculationrules">{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"\/*"},{"not":{"href_matches":["\/wp-*.php","\/wp-admin\/*","\/wp-content\/uploads\/*","\/wp-content\/*","\/wp-content\/plugins\/*","\/wp-content\/themes\/astra\/*","\/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}</script>
 			<script>const lazyloadRunObserver = () => {
 					const lazyloadBackgrounds = document.querySelectorAll( `.e-con.e-parent:not(.e-lazyloaded)` );
