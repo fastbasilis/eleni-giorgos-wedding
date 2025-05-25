@@ -845,7 +845,9 @@ document.getElementById("copyPhoneButton").addEventListener("click", copyPhoneNu
 				</footer><!-- #colophon -->
 	</div>
 <!-- #page -->
-<script> // Function to detect device type and open appropriate calendar
+<script> 
+
+// Function to detect device type and open appropriate calendar
 function addToCalendar() {
     // Event details
     const eventTitle = "Γάμος Ελένη - Γιώργος";
@@ -888,18 +890,29 @@ END:VCALENDAR`;
         document.body.removeChild(link);
         
     } else if (isAndroid) {
-        // For Android devices - use Google Calendar
-        const googleCalendarUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventTitle)}&dates=${startDate}/${endDate}&location=${encodeURIComponent(location)}`;
+        // For Android devices - use proper Calendar intent
+        // Convert dates to milliseconds
+        const startTime = new Date(startDate.replace('Z', '')).getTime();
+        const endTime = new Date(endDate.replace('Z', '')).getTime();
         
-        // Try to open in Google Calendar app, fallback to web
-        const intent = `intent://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventTitle)}&dates=${startDate}/${endDate}&location=${encodeURIComponent(location)}#Intent;scheme=https;package=com.google.android.calendar;end`;
+        // Android Calendar intent with proper format
+        const calendarIntent = `intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.item/event;title=${encodeURIComponent(eventTitle)};beginTime=${startTime};endTime=${endTime};eventLocation=${encodeURIComponent(location)};package=com.google.android.calendar;end`;
         
-        window.location.href = intent;
-        
-        // Fallback to web version after a short delay
-        setTimeout(() => {
+        try {
+            window.location.href = calendarIntent;
+        } catch (e) {
+            // Fallback to web version
+            const googleCalendarUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventTitle)}&dates=${startDate}/${endDate}&location=${encodeURIComponent(location)}`;
             window.open(googleCalendarUrl, '_blank');
-        }, 1000);
+        }
+        
+        // Additional fallback after delay in case app doesn't open
+        setTimeout(() => {
+            if (!document.hidden) {
+                const googleCalendarUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventTitle)}&dates=${startDate}/${endDate}&location=${encodeURIComponent(location)}`;
+                window.open(googleCalendarUrl, '_blank');
+            }
+        }, 1500);
         
     } else {
         // For desktop/other devices - use Google Calendar web
@@ -969,18 +982,40 @@ END:VCALENDAR`;
 }
 
 function openGoogleCalendarAndroid(event) {
-    const googleUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}`;
+    // Convert ISO dates to milliseconds for Android Calendar
+    const startTime = new Date(event.start.replace('Z', '')).getTime();
+    const endTime = new Date(event.end.replace('Z', '')).getTime();
     
-    // Try to open in Google Calendar app
-    const intentUrl = `intent://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}#Intent;scheme=https;package=com.google.android.calendar;end`;
+    // Method 1: Native Android Calendar Intent
+    const calendarIntent = `intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.item/event;title=${encodeURIComponent(event.title)};beginTime=${startTime};endTime=${endTime};eventLocation=${encodeURIComponent(event.location)};package=com.google.android.calendar;end`;
     
-    window.location.href = intentUrl;
+    // Method 2: Alternative format that sometimes works better
+    const alternativeIntent = `intent://www.google.com/calendar/event?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}#Intent;scheme=https;package=com.google.android.calendar;end`;
     
-    // Fallback to web version
-    setTimeout(() => {
-        if (document.hidden || document.webkitHidden) return; // App opened successfully
+    try {
+        // Try the native calendar intent first
+        window.location.href = calendarIntent;
+        
+        // If that doesn't work, try alternative after short delay
+        setTimeout(() => {
+            if (!document.hidden) return; // App opened successfully
+            window.location.href = alternativeIntent;
+        }, 500);
+        
+    } catch (e) {
+        console.log('Intent failed, opening web version');
+        // Fallback to web version
+        const googleUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}`;
         window.open(googleUrl, '_blank');
-    }, 1500);
+    }
+    
+    // Final fallback to web version
+    setTimeout(() => {
+        if (!document.hidden) {
+            const googleUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&location=${encodeURIComponent(event.location)}`;
+            window.open(googleUrl, '_blank');
+        }
+    }, 2000);
 }
 
 function openGoogleCalendarWeb(event) {
@@ -1001,7 +1036,11 @@ document.addEventListener('DOMContentLoaded', function() {
             addToCalendarAdvanced();
         });
     }
-});</script>
+});
+
+</script>
+
+
 <script type="speculationrules">{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"\/*"},{"not":{"href_matches":["\/wp-*.php","\/wp-admin\/*","\/wp-content\/uploads\/*","\/wp-content\/*","\/wp-content\/plugins\/*","\/wp-content\/themes\/astra\/*","\/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}</script>
 			<script>const lazyloadRunObserver = () => {
 					const lazyloadBackgrounds = document.querySelectorAll( `.e-con.e-parent:not(.e-lazyloaded)` );
